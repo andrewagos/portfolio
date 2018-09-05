@@ -1,5 +1,5 @@
 
-function Test-HarvardUser {
+function Test-GlobexUser {
 	[CmdletBinding()]
     param (
         [string]$username
