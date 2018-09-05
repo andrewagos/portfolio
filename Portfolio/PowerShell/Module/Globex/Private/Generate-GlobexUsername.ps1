@@ -1,5 +1,5 @@
 
-function Generate-HarvardUsername {
+function Generate-GlobexUsername {
 	[CmdletBinding()]
 	param(
 	[string[]]$FirstName,
