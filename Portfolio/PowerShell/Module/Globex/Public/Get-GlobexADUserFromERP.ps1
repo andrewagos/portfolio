@@ -36,24 +36,36 @@ function Get-GlobexADUserFromERP {
 	begin
 	{
 		$LookupType = $null
-		if ($EmployeeNumber) {
+		if ($EmployeeNumber) 
+		{
 			$LookupType = "EmployeeNumber"
-		} else {
-            if ($SamAccountName) {
-                $LookupType = "SamAccountName"
-            } else { 
-		        if ($Lastname -and $Firstname) {
-                    $LookupType = "FirstandLast" 
-                } else {
-                if ($Lastname) {
+		} 
+		else 
+		{
+        if ($SamAccountName) 
+		{
+            $LookupType = "SamAccountName"
+		} 
+		else 
+		{ 
+			if ($Lastname -and $Firstname) 
+			{
+                $LookupType = "FirstandLast" 
+			}
+			else 
+			{
+                if ($Lastname) 
+				{
 			        $LookupType = "LastName"
 			        Write-Warning "$($LookupType) is not well supported.  This script will attempt to lookup EmployeeNumber from AD."
-		            } else {
-			            $LookupType = "FirstName"
-			            Write-Warning "$($LookupType) is not well supported.  This script will attempt to lookup EmployeeNumber from AD."
-			        }
-                }
-		    }
+		        } 
+				else 
+				{
+			        $LookupType = "FirstName"
+			        Write-Warning "$($LookupType) is not well supported.  This script will attempt to lookup EmployeeNumber from AD."
+			    }
+            }
+		}
         }
         $ReportingSqlServer = "localhost"
         $ReportingSqlUserName = "username"
@@ -68,31 +80,39 @@ function Get-GlobexADUserFromERP {
 	}
 	Process
 	{
-        if ($LookupType) {
+        if ($LookupType) 
+		{
             Write-Verbose "Lookup type is $lookuptype"
-        } else {
+        } 
+		else 
+		{
             Write-Error "Lookup type is $LookupType"
             break;
         }
-		switch ($LookupType) {
+		switch ($LookupType) 
+		{
 			'EmployeeNumber' { $user = Get-ADUser -Filter { EmployeeNumber -eq $EmployeeNumber } -Properties EmployeeNumber,EmailAddress }
 			'LastName' { $user = Get-ADUser -Filter { Surname -like $LastName } -Properties EmployeeNumber,EmailAddress }
 			'Firstname' { $user = Get-ADUser -Filter { DisplayName -like $Firstname } -Properties EmployeeNumber,EmailAddress }
-            'FirstAndLast' { $user = Get-ADUser -Filter { (GivenName -like $Firstname) -and (SurName -like $LastName) } -Properties EmployeeNumber,EmailAddress }
             'SamAccountName' { $user = Get-ADUser -Identity $SamAccountName -Properties EmployeeNumber,EmailAddress }
 		}
 	
-		if ($user.Count -ne 1) {
+		if ($user.Count -ne 1) 
+		{
 			Write-Warning "Issues with returned data?"
 		}
-        if ($user.EmployeeNumber) { 
+        if ($user.EmployeeNumber) 
+		{ 
             Write-Verbose "EmployeeNumber found.  Querying ERP with this data."
             $LookupType = "EmployeeNumber"
-        } else {
+        } 
+		else 
+		{
             Write-Warning "Still using $LookupType.  This could cause inconsistent data."
         }
         
-        switch ($LookupType) {
+        switch ($LookupType) 
+		{
 				'EmployeeNumber' {  
 					$SqlParameters = New-Object -TypeName PSObject -Property @{
 						EmployeeNumber = $user.EmployeeNumber
@@ -140,7 +160,7 @@ function Get-GlobexADUserFromERP {
 				'SamAccountName' {
 					# Unsupported at this time.
 				}
-			}
+		}
 		$result = Invoke-Sqlcmd2 -Server $ReportingSqlServer -Database $ReportingSqlDatabase -Query $Query -SqlParameters $SqlParameters -As PSObject -Credential $ReportingSqlCredential
 	}
 	end
